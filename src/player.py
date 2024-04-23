@@ -15,31 +15,69 @@ from random import sample
 # Cores disponíveis para o palpite
 colors = [RED, GREEN, BLUE, YELLOW, ORANGE, BLACK, WHITE]
 c_dict =  {
-    RED: 1,
-    GREEN: 2,
-    BLUE: 3,
-    YELLOW: 4,
-    ORANGE: 5,
-    BLACK: 6,
-    WHITE: 7 
+    1: "🟥",
+    2: "🟩",
+    3: "🟦",
+    4: "🟨",
+    5: "🟧",
+    6: "⬛",
+    7: "⬜"
 }
+def convertColorToInt(guess_hist):
+    global numGuessHist
+    numGuessHist = []
+    for guess in guess_hist:
+        block = []
+        for k in range(len(guess)):
+            for color in c_dict.items():
+                if color[1] == guess[k]:
+                    block.append(color[0])
+        numGuessHist.append(block)
+    return numGuessHist
+            
+
 
 ## Deletes all lists that contain the guess' numbers, regardless of any order
-def delGeneral(possibilities, guess):
-    valid = []
-    for i in possibilities:
-        removable = True
-        for j in range(len(guess)):
-            if guess[j] not in i:
-                removable = False
-                break
-        if removable == False:
-            valid.append(i)
-    possibilities.clear()
-    possibilities.extend(valid)
-    return possibilities       
+def delGeneral(guess,resHist):
+    if resHist[-1][0]!=4:
+        global possibilities
+        valid = []
+        for i in possibilities:
+            removable = True
+            for j in range(len(guess)):
+                if guess[j] not in i:
+                    removable = False
+                    break
+            if removable == False:
+                valid.append(i)
+        possibilities.clear()
+        possibilities.extend(valid)
+        return possibilities   
+
+def todosCasos():
+    global possibilities
+    try:
+        possibilities[0]
+    except:
+        casosrepetido=[]
+        for i in range(1,8):
+            for j in range(1,8):
+                for k in range(1,8):
+                    for l in range(1,8):
+                        casosrepetido.append([i,j,k,l])
+        possibilities=casosrepetido.copy()
+        for i in casosrepetido:
+            for j in i:
+                if i.count(j)>1:
+                    possibilities.remove(i)
+                    break
+
 
 def player(guess_hist, res_hist):
+    todosCasos()
+
+    convertColorToInt([["⬜", "🟩", "⬛", "🟥"],["🟧", "🟩", "⬛", "🟥"]])
+    print('++',numGuessHist)
     """
     Função principal do jogador.
 
