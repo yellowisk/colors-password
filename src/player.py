@@ -24,6 +24,20 @@ c_dict =  {
     WHITE: 7 
 }
 
+## Deletes all lists that contain the guess' numbers, regardless of any order
+def delGeneral(possibilities, guess):
+    valid = []
+    for i in possibilities:
+        removable = True
+        for j in range(len(guess)):
+            if guess[j] not in i:
+                removable = False
+                break
+        if removable == False:
+            valid.append(i)
+    possibilities.clear()
+    possibilities.extend(valid)
+    return possibilities       
 
 def player(guess_hist, res_hist):
     """
