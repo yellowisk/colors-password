@@ -14,6 +14,15 @@ from random import sample
 
 # Cores disponíveis para o palpite
 colors = [RED, GREEN, BLUE, YELLOW, ORANGE, BLACK, WHITE]
+c_dict =  {
+    RED: 1,
+    GREEN: 2,
+    BLUE: 3,
+    YELLOW: 4,
+    ORANGE: 5,
+    BLACK: 6,
+    WHITE: 7 
+}
 
 
 def player(guess_hist, res_hist):
