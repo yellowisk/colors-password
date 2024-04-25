@@ -110,4 +110,3 @@ Quandos todas entregas forem submetidas, iremos utilizar o código no arquivo `t
 - 3º lugar: equivalente a nota máxima de 0.5 lista
 
 Além disso, os ganhadores receberão o maior prêmio de todos: um parabéns e aperto de mão.
-# colors-password
