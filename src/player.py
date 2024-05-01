@@ -79,7 +79,7 @@ def delIfZero(numGuessHist,resHist):
                 listaPesos.remove(listaPesos[possibilities.index(i)])
                 possibilities.remove(i)
 
-def delGuess(numGuessHist):
+def delLastGuess(numGuessHist):
     global possibilities
     try:
         listaPesos.remove(listaPesos[possibilities.index(numGuessHist[-1])])
@@ -104,7 +104,7 @@ def delCerteza(numGuessHist,res_hist):
             if i[3]==guess[3]:
                 cont+=1
             if cont!=res_hist[-1][1]:
-                listaPesos.remove(possibilities.index(i))
+                del listaPesos[possibilities.index(i)]
                 possibilities.remove(i)
 
 
@@ -162,39 +162,45 @@ def todosCasos():
                     for l in range(1,8):
                         if i!=j!=k!=l and j!=i!=k!=l and k!=j!=i!=l and l!=j!=k!=i:
                             possibilities.append([i,j,k,l])
-def getRandom(pesos,possibilities):
-    higher = pesos.index(max(pesos))
+
+def getRandom(pesos: list, possibilities: list):
+    higher = max(pesos)
     nextGuess = None
     if pesos.count(higher) > 1:
-        while nextGuess != None:
-                index = randrange(len(possibilities))
+        while nextGuess == None:
+                index = randrange(len(pesos))
                 if pesos[index] == higher:
-                    nextGuess = possibilities(index)
+                    nextGuess = possibilities[index]
                     return nextGuess
     else:
         return possibilities[pesos.index(higher)]
+    
+def reset():
+    global possibilities
+    global listaPesos
+    global cont
+    possibilities=[]
+    listaPesos=[0]*840
+    cont=0
 
-listaPesos=[0]*840
-cont=0
 def player(guess_hist, res_hist):
     global cont
-    todosCasos()
+    if guess_hist==[]:
+        reset()
+        todosCasos()
     cont+=1
     convertColorToInt(guess_hist)
 
     if(cont>=2):
         print(len(possibilities))
-        print(len(listaPesos))
         convertColorToInt([guess_hist[-1]])
         delGeneral(numGuessHist,res_hist)
         delIfZero(numGuessHist,res_hist)
         delIfFour(numGuessHist, res_hist)
-        delGuess(numGuessHist)
-        #delCerteza(numGuessHist,res_hist)
+        delLastGuess(numGuessHist)
+        delCerteza(numGuessHist,res_hist)
         #zerarPesos()
         addPesoEx(numGuessHist,res_hist)
         addPesoPos(numGuessHist,res_hist)
 
-
-    #possibilities[listaPesos.index(max(listaPesos)]
-    return  convertIntToColor(possibilities[listaPesos.index(max(listaPesos))])# Exemplo: retorna um palpite aleatório
+    return convertIntToColor(getRandom(listaPesos,possibilities))
