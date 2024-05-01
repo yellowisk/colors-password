@@ -24,15 +24,13 @@ c_dict =  {
     7: WHITE
 }
 
-def convertColorToInt(guess_hist):
+def convertColorToInt(guess):
     global numGuessHist
-    numGuessHist = []
-    for guess in guess_hist:
-        block = []
-        for k in range(len(guess)):
-            for color in c_dict.items():
-                if color[1].__str__() == guess[k].__str__():
-                    block.append(color[0])
+    block = []
+    for el in guess:
+        for color in c_dict.items():
+            if color[1].__str__() == el.__str__():
+                block.append(color[0])
         numGuessHist.append(block)
     return numGuessHist
             
@@ -179,21 +177,18 @@ def reset():
     global possibilities
     global listaPesos
     global cont
+    global numGuessHist
+    numGuessHist=[]
     possibilities=[]
     listaPesos=[0]*840
-    cont=0
 
 def player(guess_hist, res_hist):
     global cont
     if guess_hist==[]:
         reset()
         todosCasos()
-    cont+=1
-    convertColorToInt(guess_hist)
-
-    if(cont>=2):
-        print(len(possibilities))
-        convertColorToInt([guess_hist[-1]])
+    else:
+        convertColorToInt(guess_hist[-1])
         delGeneral(numGuessHist,res_hist)
         delIfZero(numGuessHist,res_hist)
         delIfFour(numGuessHist, res_hist)
