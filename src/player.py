@@ -31,7 +31,7 @@ def convertColorToInt(guess):
         for color in c_dict.items():
             if color[1].__str__() == el.__str__():
                 block.append(color[0])
-        numGuessHist.append(block)
+    numGuessHist.append(block)
     return numGuessHist
             
 def convertIntToColor(guess):
@@ -46,15 +46,13 @@ def convertIntToColor(guess):
 def delGeneral(numGuessHist,resHist):
     guess=numGuessHist[-1]
     if resHist[-1][0]!=4:
-        1234
         global possibilities
         copia = possibilities.copy()
         for i in copia:
             if guess[0] in i and guess[1] in i and guess[2] in i and guess[3] in i:
                 listaPesos.remove(listaPesos[possibilities.index(i)])
                 possibilities.remove(i)
-        
-        return possibilities   
+    return possibilities
     
 def delIfFour(numGuessHist,res_hist):
     guess=numGuessHist[-1]
@@ -197,5 +195,4 @@ def player(guess_hist, res_hist):
         #zerarPesos()
         addPesoEx(numGuessHist,res_hist)
         addPesoPos(numGuessHist,res_hist)
-
     return convertIntToColor(getRandom(listaPesos,possibilities))
