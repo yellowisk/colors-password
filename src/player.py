@@ -10,7 +10,8 @@ Dicas:
 - Você pode salvar informações entre os palpites usando variáveis globais (fora de qualquer função).
 """
 from colors import *
-from random import sample,randrange
+from random import sample,randrange,choice
+import time
 
 # Cores disponíveis para o palpite
 colors = [RED, GREEN, BLUE, YELLOW, ORANGE, BLACK, WHITE]
@@ -24,6 +25,16 @@ c_dict =  {
     7: WHITE
 }
 
+#Cria lista com todas as possibilidades de chute
+saved = []
+for i in range(1,8):
+            for j in range(1,8):
+                for k in range(1,8):
+                    for l in range(1,8):
+                        if i!=j!=k!=l and j!=i!=k!=l and k!=j!=i!=l and l!=j!=k!=i:
+                            saved.append([i,j,k,l])
+
+#Transforma as cores de um chute para int
 def convertColorToInt(guess):
     global numGuessHist
     block = []
@@ -33,7 +44,8 @@ def convertColorToInt(guess):
                 block.append(color[0])
     numGuessHist.append(block)
     return numGuessHist
-            
+
+#Transforma os ints de um chute para color      
 def convertIntToColor(guess):
     block = []
     for k in range(len(guess)):
@@ -52,8 +64,8 @@ def delGeneral(numGuessHist,resHist):
             if guess[0] in i and guess[1] in i and guess[2] in i and guess[3] in i:
                 listaPesos.remove(listaPesos[possibilities.index(i)])
                 possibilities.remove(i)
-    return possibilities
-    
+
+#Se as quatro cores de um chute estiverem corretas, remove todos que não têm todas estas cores
 def delIfFour(numGuessHist,res_hist):
     guess=numGuessHist[-1]
     global possibilities
@@ -64,6 +76,7 @@ def delIfFour(numGuessHist,res_hist):
                 listaPesos.remove(listaPesos[possibilities.index(i)])
                 possibilities.remove(i)
 
+#Se nenhuma cor de um chute estiver na posição correta, remove todos os chutes que têm alguma dessas cores na mesma posição do chute
 def delIfZero(numGuessHist,resHist):
     global possibilities
     guess=numGuessHist[-1]
@@ -75,6 +88,7 @@ def delIfZero(numGuessHist,resHist):
                 listaPesos.remove(listaPesos[possibilities.index(i)])
                 possibilities.remove(i)
 
+#Remove o último chute dado se ele estiver incorreto
 def delLastGuess(numGuessHist):
     global possibilities
     try:
@@ -83,7 +97,8 @@ def delLastGuess(numGuessHist):
     except:
         pass
 
-def delCerteza(numGuessHist,res_hist):
+#Remove todos os chutes que tem um número diferente de cores na mesma posição do último chute, caso eles tenham o mesmo número de cores na posição correta
+def delCertezaPos(numGuessHist,res_hist):
     global possibilities
     global listaPesos
     copia=possibilities.copy()
@@ -103,7 +118,7 @@ def delCerteza(numGuessHist,res_hist):
                 del listaPesos[possibilities.index(i)]
                 possibilities.remove(i)
 
-
+#Valorizamos mais todos os chutes que tem elementos na mesma posição do último chute dado, caso eles tenham o mesmo número de cores na posição correta
 def addPesoPos(numGuessHist,res_hist):
     global possibilities
     global listaPesos
@@ -123,42 +138,60 @@ def addPesoPos(numGuessHist,res_hist):
             if cont==res_hist[-1][1]:
                 listaPesos[possibilities.index(i)]+=1
 
-def addPesoEx(numGuessHist,res_hist):
+#Remove todos os chutes que tem um número diferente de cores em qualquer posição do último chute, caso eles tenham o mesmo número de cores corretas
+def delCertezaEx(numGuessHist,res_hist):
+    global maximo
     guess=numGuessHist[-1]
     global possibilities
     global listaPesos
     copia=possibilities.copy()
-    for i in copia:
-        cont=0
-        if i[0] in guess:
-            cont+=1
-        if i[1] in guess:
-            cont+=1
-        if i[2] in guess:
-            cont+=1
-        if i[3] in guess:
-            cont+=1
-        if cont==res_hist[-1][0]:
-            listaPesos[possibilities.index(i)]+=1
+    if res_hist[-1][0]>maximo:
+        max=res_hist[-1][0]
+        for i in copia:
+            cont=0
+            if i[0] in guess:
+                cont+=1
+            if i[1] in guess:
+                cont+=1
+            if i[2] in guess:
+                cont+=1
+            if i[3] in guess:
+                cont+=1
+            if cont!=res_hist[-1][0]:                
+                del listaPesos[possibilities.index(i)]
+                possibilities.remove(i)
 
-def zerarPesos():
-    global listaPesos
+#Valorizamos mais todos os chutes que tem os mesmos elementos do último chute dado, caso eles tenham o mesmo número de cores corretas
+def addPesoEx(numGuessHist,res_hist):
+    global maximo
+    guess=numGuessHist[-1]
     global possibilities
-    listaPesos = [0]*len(possibilities)
+    global listaPesos
+    copia=possibilities.copy()
+    if res_hist[-1][0]>maximo:
+        max=res_hist[-1][0]
+        for i in copia:
+            cont=0
+            if i[0] in guess:
+                cont+=1
+            if i[1] in guess:
+                cont+=1
+            if i[2] in guess:
+                cont+=1
+            if i[3] in guess:
+                cont+=1
+            if cont==res_hist[-1][0]:
+                listaPesos[possibilities.index(i)]+=1
 
-def todosCasos():
+#Caso a lista de chutes não exista é atribuída a ela todos os chutes possíveis
+def todosCasos(saved):
     global possibilities
     try:
         possibilities[0]
     except:
-        possibilities=[]
-        for i in range(1,8):
-            for j in range(1,8):
-                for k in range(1,8):
-                    for l in range(1,8):
-                        if i!=j!=k!=l and j!=i!=k!=l and k!=j!=i!=l and l!=j!=k!=i:
-                            possibilities.append([i,j,k,l])
+        possibilities=saved.copy()
 
+#Dentre os chutes com maior peso, escolhemos um deles aleatoriamente
 def getRandom(pesos: list, possibilities: list):
     higher = max(pesos)
     nextGuess = None
@@ -171,28 +204,46 @@ def getRandom(pesos: list, possibilities: list):
     else:
         return possibilities[pesos.index(higher)]
     
+
+
+#Reseta as variáveis para cada jogo novo
 def reset():
+    global maximo
     global possibilities
     global listaPesos
-    global cont
     global numGuessHist
+    maximo=0
     numGuessHist=[]
     possibilities=[]
     listaPesos=[0]*840
 
+#Junção das funções dos casos gerais
+def removalSpree(numGuessHist,resHist):
+    delGeneral(numGuessHist,resHist)
+    delIfZero(numGuessHist,resHist)
+    delIfFour(numGuessHist,resHist)
+    delLastGuess(numGuessHist)
+    delCertezaPos(numGuessHist,resHist)
+    delCertezaEx(numGuessHist,resHist)
+    addPesoEx(numGuessHist,resHist)
+    addPesoPos(numGuessHist,resHist)
+
+#Joga =)
 def player(guess_hist, res_hist):
-    global cont
     if guess_hist==[]:
         reset()
-        todosCasos()
+        todosCasos(saved)
+        return convertIntToColor([1,2,3,4])
+    if len(guess_hist)==1:
+        if res_hist[-1][0]==1:
+            convertColorToInt(guess_hist[-1])
+            removalSpree(numGuessHist,res_hist)
+            return convertIntToColor([1,5,6,7])
+        else:
+            convertColorToInt(guess_hist[-1])
+            removalSpree(numGuessHist,res_hist)
+            return convertIntToColor(getRandom(listaPesos,possibilities))
     else:
         convertColorToInt(guess_hist[-1])
-        delGeneral(numGuessHist,res_hist)
-        delIfZero(numGuessHist,res_hist)
-        delIfFour(numGuessHist, res_hist)
-        delLastGuess(numGuessHist)
-        delCerteza(numGuessHist,res_hist)
-        #zerarPesos()
-        addPesoEx(numGuessHist,res_hist)
-        addPesoPos(numGuessHist,res_hist)
-    return convertIntToColor(getRandom(listaPesos,possibilities))
+        removalSpree(numGuessHist,res_hist)
+        return convertIntToColor(getRandom(listaPesos,possibilities))
